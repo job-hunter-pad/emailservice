@@ -1,39 +1,39 @@
 package jobhunter.emailservice.util;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
-import javax.mail.Message;
 import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Service
 public class EmailSender {
 
-    public static final String FROM = "jobhunter.pad@gmail.com";
-    public static final String HOST = "localhost";
+    @Autowired
+    private JavaMailSender mailSender;
 
-    public void sendEmail(String email, String subject, String body) {
-        Properties properties = System.getProperties();
-        properties.setProperty("mail.smtp.host", HOST);
-        Session session = Session.getDefaultInstance(properties);
+    public void sendEmail(String recipient, String subject, String body) {
 
         try {
-            MimeMessage message = new MimeMessage(session);
 
-            message.setFrom(new InternetAddress(FROM));
-            message.addRecipient(Message.RecipientType.TO, new InternetAddress(email));
+            MimeMessage message = mailSender.createMimeMessage();
             message.setSubject(subject);
-            message.setContent(body, "text/html");
+            MimeMessageHelper helper;
+            helper = new MimeMessageHelper(message, true);
+            helper.setTo(recipient);
+            helper.setText(body, true);
 
-            Transport.send(message);
-            System.out.println("Sent message successfully....");
-        } catch (MessagingException mex) {
-            mex.printStackTrace();
+            mailSender.send(message);
+            System.out.println("Mail send successfully");
+
+        } catch (MessagingException ex) {
+            Logger.getLogger(EmailSender.class.getName()).log(Level.SEVERE, null, ex);
         }
+
     }
 
 }
