@@ -22,11 +22,12 @@ public class KafkaConfiguration {
     public ConsumerFactory<String, Email> consumerFactory() {
         Map<String, Object> config = new HashMap<>();
 
-        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092");
+        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
         config.put(ConsumerConfig.GROUP_ID_CONFIG, "group_email");
         config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
-        return new DefaultKafkaConsumerFactory<>(config, new StringDeserializer(), new JsonDeserializer<>(Email.class));
+        JsonDeserializer<Email> emailJsonDeserializer = new JsonDeserializer<>(Email.class,false);
+        return new DefaultKafkaConsumerFactory<>(config, new StringDeserializer(), emailJsonDeserializer);
     }
 
     @Bean
